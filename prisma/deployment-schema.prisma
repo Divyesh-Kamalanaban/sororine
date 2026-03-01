@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  phoneNumber String?
+  emergencyContactName String?
+  emergencyContactNumber String?
+  isPhoneVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  incidents Incident[]
+  location  UserLocation?
+}
+
+model Incident {
+  id          Int      @id @default(autoincrement())
+  lat         Float
+  lng         Float
+  category    String
+  description String?  // Street name or address
+  location    String?
+  imageUrl    String?  // Base64 or URL
+  timestamp   DateTime @default(now())
+  
+  location_geog String?  // PostGIS geography (automatically calculated)
+  
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model UserLocation {
+  id          String   @id // Client-generated session ID
+  lat         Float
+  lng         Float
+  lastUpdated DateTime @default(now())
+  location_geog String?  // PostGIS geography (automatically calculated)
+  
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  helpRequestedAt DateTime?
+
+  sentOffers     HelpOffer[] @relation("Helper")
+  receivedOffers HelpOffer[] @relation("Requester")
+  
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  @@index([lastUpdated])
+}
+
+model HelpOffer {
+  id          String   @id @default(uuid())
+  requesterId String
+  helperId    String
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt   DateTime @default(now())
+
+  requester   UserLocation @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  helper      UserLocation @relation("Helper", fields: [helperId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, helperId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  senderId  String
+  receiverId String
+  content   String
+  createdAt DateTime @default(now())
+  
+  // Relations to UserLocation (using session IDs)
+  sender    UserLocation @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver  UserLocation @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([createdAt])
+}
