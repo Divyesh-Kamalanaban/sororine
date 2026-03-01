@@ -1,3 +1,9 @@
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "btree_gist";
+
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "postgis";
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -22,8 +28,8 @@ CREATE TABLE "Incident" (
     "description" TEXT,
     "location" TEXT,
     "imageUrl" TEXT,
-    "timestamp" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "location_geog" TEXT,
     "userId" TEXT,
 
     CONSTRAINT "Incident_pkey" PRIMARY KEY ("id")
@@ -35,6 +41,7 @@ CREATE TABLE "UserLocation" (
     "lat" DOUBLE PRECISION NOT NULL,
     "lng" DOUBLE PRECISION NOT NULL,
     "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "location_geog" TEXT,
     "userId" TEXT,
     "helpRequestedAt" TIMESTAMP(3),
 
