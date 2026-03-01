@@ -17,7 +17,8 @@ interface OfferHelpModalProps {
     isOpen: boolean;
     onClose: () => void;
     nearbyUsers: NearbyUser[];
-    onOfferHelp: (targetUserId: string) => Promise<void>;
+    onOfferHelp: (targetUserId: string) => Promise<void | boolean>;
+    userLocation: { lat: number; lng: number } | null;
 }
 
 export default function OfferHelpModal({
@@ -25,7 +26,8 @@ export default function OfferHelpModal({
     isOpen,
     onClose,
     nearbyUsers,
-    onOfferHelp
+    onOfferHelp,
+    userLocation
 }: OfferHelpModalProps) {
     const [offering, setOffering] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -66,7 +68,7 @@ export default function OfferHelpModal({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in fade-in zoom-in-95 duration-300 z-2000">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-neutral-800">
                     <div>
@@ -96,20 +98,23 @@ export default function OfferHelpModal({
                     ) : (
                         usersNeedingHelp.map((user) => {
                             // Calculate distance (simple approximation)
+                            const myLat = userLocation?.lat || 0;
+                            const myLng = userLocation?.lng || 0;
+
                             const distance = Math.sqrt(
-                                Math.pow(user.lat - (nearbyUsers[0]?.lat || user.lat), 2) +
-                                Math.pow(user.lng - (nearbyUsers[0]?.lng || user.lng), 2)
+                                Math.pow(user.lat - myLat, 2) +
+                                Math.pow(user.lng - myLng, 2)
                             ) * 111; // Rough km conversion
 
                             return (
                                 <div
                                     key={user.id}
-                                    className="p-4 bg-gradient-to-r from-red-600/10 to-orange-600/10 border border-red-500/30 rounded-xl hover:border-red-500/50 transition-all"
+                                    className="p-4 bg-linear-to-r from-red-600/10 to-orange-600/10 border border-red-500/30 rounded-xl hover:border-red-500/50 transition-all"
                                 >
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
                                             <h3 className="font-semibold text-white flex items-center gap-2">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center animate-pulse">
+                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-red-500 to-orange-600 flex items-center justify-center animate-pulse">
                                                     <Heart className="w-5 h-5 text-white" />
                                                 </div>
                                                 Person in Distress #{user.id.slice(0, 8)}
@@ -139,7 +144,7 @@ export default function OfferHelpModal({
                                     <button
                                         onClick={() => handleOffer(user.id)}
                                         disabled={offering === user.id || loading}
-                                        className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 disabled:from-neutral-600 disabled:to-neutral-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all transform hover:scale-105 disabled:scale-100"
+                                        className="w-full px-4 py-3 bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 disabled:from-neutral-600 disabled:to-neutral-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all transform hover:scale-105 disabled:scale-100"
                                     >
                                         {offering === user.id ? (
                                             <>

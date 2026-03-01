@@ -124,30 +124,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Demo Info Box */}
-                    <div className="mt-8 pt-6 border-t border-gray-700">
-                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                            <p className="text-xs text-blue-300 font-semibold mb-3 uppercase tracking-wide">Demo Credentials</p>
-                            <div className="space-y-2 text-xs text-gray-400 font-mono mb-4">
-                                <div className="flex justify-between items-center">
-                                    <span>alice@example.com</span>
-                                    <span className="text-gray-600">/</span>
-                                    <span>password123</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span>priya@example.com</span>
-                                    <span className="text-gray-600">/</span>
-                                    <span>password123</span>
-                                </div>
-                            </div>
-                            <Link 
-                                href="/demo" 
-                                className="text-xs text-blue-400 hover:text-blue-300 transition-colors underline"
-                            >
-                                Need to create test users? Visit demo page →
-                            </Link>
-                        </div>
-                    </div>
+
                 </div>
                 <div className="mt-8 text-center">
                     <Link href="/" className="text-gray-500 hover:text-white text-sm transition-colors flex items-center justify-center gap-2">

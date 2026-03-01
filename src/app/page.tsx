@@ -92,12 +92,7 @@ export default function LandingPage() {
                 Start for Free
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                href="/login"
-                className="w-full sm:w-auto px-8 py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl text-lg border border-neutral-700 transition-all hover:border-neutral-600"
-              >
-                View Demo
-              </Link>
+
             </div>
 
             {/* Trust Badges */}

@@ -1,0 +1,19 @@
+meta {
+  name: Create Incident
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/incidents
+  body: json
+}
+
+body:json {
+  "lat": 28.6139,
+  "lng": 77.2090,
+  "category": "Harassment",
+  "description": "Details about the incident",
+  "location": "Near Metro Station",
+  "imageUrl": "https://example.com/image.jpg"
+}

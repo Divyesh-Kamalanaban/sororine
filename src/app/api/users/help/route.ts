@@ -5,15 +5,23 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request) {
     try {
         const { id, active } = await request.json();
+        console.log(`[API] Help route called. ID: ${id}, Active: ${active}`);
 
         if (!id) {
             return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
         }
 
         if (active) {
-            await prisma.userLocation.update({
+            // Use upsert to ensure user exists even if location hasn't been posted yet
+            await prisma.userLocation.upsert({
                 where: { id },
-                data: { helpRequestedAt: new Date() }
+                update: { helpRequestedAt: new Date() },
+                create: {
+                    id,
+                    lat: 0, // Default to 0 if unknown, or maybe handle this better?
+                    lng: 0,
+                    helpRequestedAt: new Date()
+                }
             });
         } else {
             console.log(`[API] Deactivating help for ID: ${id}. Removing offers...`);
@@ -25,9 +33,18 @@ export async function POST(request: Request) {
                 }),
                 prisma.helpOffer.deleteMany({
                     where: { requesterId: id }
+                }),
+                // Delete messages involving this user (both sent and received)
+                prisma.message.deleteMany({
+                    where: {
+                        OR: [
+                            { senderId: id },
+                            { receiverId: id }
+                        ]
+                    }
                 })
             ]);
-            console.log(`[API] Help ended. Offers deleted count:`, result[1].count);
+            console.log(`[API] Help ended. Offers deleted: ${result[1].count}, Messages deleted: ${result[2].count}`);
         }
 
         return NextResponse.json({ success: true, status: active ? 'active' : 'inactive' });

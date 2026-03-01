@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { lat, lng, category, description, timestamp, imageUrl, location } = body;
+        const { lat, lng, category, description, imageUrl, location, timestamp, userId } = body;
 
         // Simple validation
         if (!lat || !lng || !category) {
@@ -37,7 +37,9 @@ export async function POST(request: Request) {
                 description,
                 location,
                 imageUrl,
+                userId, // In a real app, we'd associate this with the authenticated user
                 timestamp: new Date(timestamp || Date.now()),
+                
             },
         });
 

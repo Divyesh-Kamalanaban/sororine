@@ -1,0 +1,16 @@
+meta {
+  name: Submit Help Offer
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{base_url}}/users/help/offer
+  body: json
+}
+
+body:json {
+  "requesterId": "requesting-user-id",
+  "helperId": "current-helper-id",
+  "name": "Helper Name"
+}

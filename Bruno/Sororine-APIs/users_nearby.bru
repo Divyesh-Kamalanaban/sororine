@@ -1,0 +1,9 @@
+meta {
+  name: Get Nearby Users
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base_url}}/users/nearby?lat={{lat}}&lng={{lng}}&userId={{userId}}
+}

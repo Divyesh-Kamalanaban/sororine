@@ -1,0 +1,17 @@
+meta {
+  name: Update User Location
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{base_url}}/users/location
+  body: json
+}
+
+body:json {
+  "id": "user-session-id",
+  "lat": 28.6139,
+  "lng": 77.2090,
+  "userId": "auth-user-id"
+}

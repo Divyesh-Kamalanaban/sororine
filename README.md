@@ -43,8 +43,6 @@ A real-time safety intelligence platform that uses location data to provide risk
    npx prisma db push
    
    # (Optional) Seed with sample data
-   # You can create a GET request to /api/seed if a seeder is implemented, 
-   # or manually add data via 'npx prisma studio'
    ```
 
 4. **Environment Variables**
@@ -63,15 +61,6 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 > **Note**: The application requires **Location Permissions**. You must allow location access to view the dashboard. If you deny it, the application will not load the safety data.
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    allowedDevOrigins: ["192.168.29.100:3000", "localhost:3000"]
-  }
-};
-
-export default nextConfig;
 
 ## Project Structure
 - `src/app/api`: Backend API routes (Risk analysis, Incidents, Auth).

@@ -37,6 +37,7 @@ export async function middleware(request: NextRequest) {
 // Configure which routes this middleware applies to
 export const config = {
     matcher: [
+        '/dashboard',
         '/dashboard/:path*',
         '/reports/:path*',
         '/settings/:path*',

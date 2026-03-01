@@ -1,0 +1,15 @@
+meta {
+  name: Activate Help Request
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{base_url}}/users/help
+  body: json
+}
+
+body:json {
+  "id": "user-session-id",
+  "active": true
+}

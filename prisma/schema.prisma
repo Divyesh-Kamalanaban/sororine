@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "sqlite"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 
@@ -30,11 +29,12 @@ model Incident {
   lat         Float
   lng         Float
   category    String
-  description String?
-  location    String?  // Street name or address
+  description String?  // Street name or address
+  location    String?
   imageUrl    String?  // Base64 or URL
-  timestamp   DateTime
-  createdAt   DateTime @default(now())
+  timestamp   DateTime @default(now())
+  
+  location_geog String?  // PostGIS geography (automatically calculated)
   
   userId      String?
   user        User?    @relation(fields: [userId], references: [id])
@@ -45,6 +45,7 @@ model UserLocation {
   lat         Float
   lng         Float
   lastUpdated DateTime @default(now())
+  location_geog String?  // PostGIS geography (automatically calculated)
   
   userId      String?  @unique
   user        User?    @relation(fields: [userId], references: [id])

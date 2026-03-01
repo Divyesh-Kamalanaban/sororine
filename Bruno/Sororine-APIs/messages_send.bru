@@ -1,0 +1,16 @@
+meta {
+  name: Send Message
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{base_url}}/messages
+  body: json
+}
+
+body:json {
+  "senderId": "your-user-id",
+  "receiverId": "recipient-user-id",
+  "content": "Hello, I'm here to help!"
+}

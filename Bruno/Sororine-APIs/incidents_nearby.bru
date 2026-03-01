@@ -1,0 +1,10 @@
+meta {
+  name: Get Nearby Incidents
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/incidents?lat={{lat}}&lng={{lng}}
+  body: none
+}
