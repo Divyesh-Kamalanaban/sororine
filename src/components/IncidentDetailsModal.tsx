@@ -7,9 +7,10 @@ interface IncidentDetailsModalProps {
     incident: any;
     onClose: () => void;
     onDelete: (id: number) => void;
+    currentUserId?: string;
 }
 
-export default function IncidentDetailsModal({ incident, onClose, onDelete }: IncidentDetailsModalProps) {
+export default function IncidentDetailsModal({ incident, onClose, onDelete, currentUserId }: IncidentDetailsModalProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -18,14 +19,25 @@ export default function IncidentDetailsModal({ incident, onClose, onDelete }: In
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
+            const userId = localStorage.getItem('sororine_user_id') || localStorage.getItem('safety_user_id');
+            if (!userId) {
+                alert("User authentication required.");
+                setIsDeleting(false);
+                return;
+            }
+
             const res = await fetch(`/api/incidents?id=${incident.id}`, {
                 method: 'DELETE',
+                headers: {
+                    'x-user-id': userId
+                }
             });
             if (res.ok) {
                 onDelete(incident.id);
                 onClose();
             } else {
-                alert("Failed to delete incident.");
+                const errorData = await res.json();
+                alert(errorData.error || "Failed to delete incident.");
             }
         } catch (error) {
             console.error("Error deleting incident:", error);
@@ -88,7 +100,8 @@ export default function IncidentDetailsModal({ incident, onClose, onDelete }: In
                     </div>
                 </div>
 
-                {/* Footer / Actions */}
+                {/* Footer / Actions - Only show delete if user is incident creator */}
+                {(!currentUserId || currentUserId === incident.userId) && (
                 <div className="p-5 border-t border-white/10 bg-white/5 flex flex-col gap-3">
                     {confirmDelete ? (
                         <div className="w-full">
@@ -118,6 +131,7 @@ export default function IncidentDetailsModal({ incident, onClose, onDelete }: In
                         </button>
                     )}
                 </div>
+                )}
             </div>
         </div>
     );

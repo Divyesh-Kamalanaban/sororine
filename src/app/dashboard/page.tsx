@@ -248,12 +248,20 @@ export default function Dashboard() {
     }
   };
 
-  const handleAcceptOffer = (offerId: string) => {
-    // The help modal will handle opening the chat
-    // This is called when an offer is accepted
+  const handleAcceptOffer = async (offerId: string, helperId: string) => {
+    // Close modal and open chat with the helper
     console.log("Offer accepted:", offerId);
     setIsHelpModalOpen(false);
-    fetchData(); // Refresh to get the accepted offer
+    
+    // Immediately open chat window with the helper
+    setActiveChatPartner({
+      id: helperId,
+      name: `Helper #${helperId.slice(0, 8)}`
+    });
+    setAcceptedHelperId(helperId);
+    
+    // Refresh data to update state
+    setTimeout(() => fetchData(), 500);
   };
 
   const handleRejectOffer = (offerId: string) => {
@@ -500,6 +508,7 @@ export default function Dashboard() {
               setSelectedIncident(null);
               fetchData();
             }}
+            currentUserId={userId || undefined}
           />
 
           {/* Active Chat */}

@@ -20,7 +20,7 @@ interface HelpModalProps {
     userId: string;
     isOpen: boolean;
     onClose: () => void;
-    onAcceptOffer: (offerId: string) => void;
+    onAcceptOffer: (offerId: string, helperId: string) => void;
     onRejectOffer: (offerId: string) => void;
 }
 
@@ -59,7 +59,7 @@ export default function HelpModal({
         }
     };
 
-    const handleAccept = async (offerId: string) => {
+    const handleAccept = async (offerId: string, helperId: string) => {
         try {
             const res = await fetch('/api/users/help/offer', {
                 method: 'POST',
@@ -71,7 +71,7 @@ export default function HelpModal({
             });
 
             if (res.ok) {
-                onAcceptOffer(offerId);
+                onAcceptOffer(offerId, helperId);
                 setOffers(offers.filter(o => o.id !== offerId));
             }
         } catch (error) {
@@ -170,7 +170,7 @@ export default function HelpModal({
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
                                     <button
-                                        onClick={() => handleAccept(offer.id)}
+                                        onClick={() => handleAccept(offer.id, offer.helperId)}
                                         className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
                                     >
                                         <CheckCircle2 className="w-4 h-4" />

@@ -10,10 +10,17 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedIncident, setSelectedIncident] = useState<any>(null);
+    const [userId, setUserId] = useState<string | null>(null);
 
     // Filters
     const [showLast24h, setShowLast24h] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("All");
+
+    // Get current user ID
+    useEffect(() => {
+        const uid = localStorage.getItem('sororine_user_id') || localStorage.getItem('safety_user_id');
+        setUserId(uid);
+    }, []);
 
     const fetchIncidents = async () => {
         setLoading(true);
@@ -301,6 +308,7 @@ export default function ReportsPage() {
                         setSelectedIncident(null);
                         fetchIncidents();
                     }}
+                    currentUserId={userId || undefined}
                 />
             </main>
         </div>
