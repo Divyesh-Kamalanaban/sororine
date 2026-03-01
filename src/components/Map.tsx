@@ -39,16 +39,23 @@ const createIcon = (color: string) => L.divIcon({
 
 const userIcon = L.divIcon({
     className: 'user-marker',
-    html: `<div style="background-color: #2E2BAC; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 0 4px rgba(46, 43, 172, 0.5);"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
+    html: `
+      <div style="position: relative; width: 22px; height: 22px;">
+        <div style="background: #94a3b8; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 8px rgba(148, 163, 184, 0.6);"></div>
+        <div style="position:absolute; top:6px; left:6px; width:10px; height:10px; background: #050509; border-radius:50%;"></div>
+      </div>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
 });
 
 const nearbyIcon = L.divIcon({
     className: 'nearby-marker',
-    html: `<div style="background-color: #10b981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #050509; box-shadow: 0 0 8px #10b981;"></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6]
+    html: `
+      <div style="background: #475569; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 4px rgba(71, 85, 105, 0.6);"></div>
+    `,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
 });
 
 const helpRequestedIcon = L.divIcon({
@@ -146,7 +153,10 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
                 {/* Current User */}
                 {userLocation && (
                     <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-                        <Popup>You are here</Popup>
+                        <Popup className="!bg-[#0A0A10] !border !border-white/20 !rounded-lg !p-3 !text-sm !text-slate-300 !shadow-lg">
+                            <div className="font-medium">You are here</div>
+                            <div className="text-xs text-gray-400">Lat: {userLocation.lat.toFixed(4)}, Lng: {userLocation.lng.toFixed(4)}</div>
+                        </Popup>
                         <Circle center={[userLocation.lat, userLocation.lng]} radius={100} pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1, weight: 1 }} />
                     </Marker>
                 )}
@@ -159,23 +169,23 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
                         icon={u.isHelpRequested ? helpRequestedIcon : nearbyIcon}
                         zIndexOffset={u.isHelpRequested ? 1000 : 0}
                     >
-                        <Popup>
+                        <Popup className="!bg-[#0A0A10] !border !border-white/20 !rounded-lg !p-3 !text-sm !text-slate-300 !shadow-lg">
                             {u.isHelpRequested ? (
                                 <div className="text-center">
-                                    <div className="font-bold text-red-600 mb-2">HELP REQUESTED!</div>
+                                    <div className="font-bold text-red-500 mb-2">Help requested</div>
                                     {onOfferHelp && (
                                         <button
-                                            onClick={() => {
-                                                onOfferHelp(u.id);
-                                            }}
-                                            className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full hover:bg-blue-700 shadow-sm"
+                                            onClick={() => onOfferHelp(u.id)}
+                                            className="px-3 py-1 bg-slate-700 text-white text-xs font-bold rounded-full hover:bg-slate-600 shadow-sm"
                                         >
-                                            Offer Help
+                                            Offer Assistance
                                         </button>
                                     )}
                                 </div>
                             ) : (
-                                <div>Nearby User</div>
+                                <div className="text-center">
+                                    <div className="font-medium">Nearby user</div>
+                                </div>
                             )}
                         </Popup>
                     </Marker>

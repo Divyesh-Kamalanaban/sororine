@@ -31,10 +31,10 @@ export default function GlobalFilters() {
 
                 <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
                     <Bell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-amber rounded-full animate-pulse"></span>
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
                 </button>
 
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-white/20"></div>
+                <div className="w-8 h-8 rounded-full bg-slate-600 border border-white/20"></div>
             </div>
         </header>
     );

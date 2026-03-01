@@ -98,7 +98,7 @@ export default function Sidebar() {
                 <div className="flex items-center justify-between p-4 border-b border-white/10 h-16">
                     {(!collapsed || isMobileOpen) && (
                         <span className="font-bold text-xl tracking-wider text-white animate-in fade-in duration-300">
-                            SOROR<span className="text-primary">INE</span>
+                            SOROR<span className="text-accent">INE</span>
                         </span>
                     )}
                     <button
@@ -122,7 +122,7 @@ export default function Sidebar() {
                             className={cn(
                                 "flex items-center gap-4 px-3 py-3 rounded-xl transition-all group",
                                 "hover:bg-primary/10 hover:text-primary",
-                                "text-gray-400"
+                                "text-slate-300"
                             )}
                         >
                             <item.icon size={22} className="min-w-[22px]" />

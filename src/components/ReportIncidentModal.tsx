@@ -178,14 +178,14 @@ export default function ReportIncidentModal({ isOpen, onClose, currentLocation, 
                                 <button
                                     type="button"
                                     onClick={() => setUseManualLocation(false)}
-                                    className={cn("px-2 py-1 rounded transition-colors", !useManualLocation ? "bg-primary text-white" : "text-gray-400 hover:text-white")}
+                                    className={cn("px-2 py-1 rounded transition-colors", !useManualLocation ? "bg-slate-700 text-white" : "text-gray-400 hover:text-white")}
                                 >
                                     Current
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setUseManualLocation(true)}
-                                    className={cn("px-2 py-1 rounded transition-colors", useManualLocation ? "bg-primary text-white" : "text-gray-400 hover:text-white")}
+                                    className={cn("px-2 py-1 rounded transition-colors", useManualLocation ? "bg-slate-700 text-white" : "text-gray-400 hover:text-white")}
                                 >
                                     Search
                                 </button>
@@ -199,7 +199,7 @@ export default function ReportIncidentModal({ isOpen, onClose, currentLocation, 
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Enter street or city..."
-                                    className="flex-1 bg-[#151520] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
+                                    className="flex-1 bg-[#151520] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-slate-400"
                                 />
                                 <button
                                     type="button"

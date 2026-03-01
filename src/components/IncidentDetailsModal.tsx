@@ -86,7 +86,7 @@ export default function IncidentDetailsModal({ incident, onClose, onDelete, curr
                     {/* Meta Data */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="col-span-2 flex items-center gap-2 text-gray-300 bg-white/5 p-2 rounded-lg border border-white/10">
-                            <MapPin size={16} className="text-primary shrink-0" />
+                            <MapPin size={16} className="text-slate-300 shrink-0" />
                             <span className="truncate">{incident.location || "Location name not available"}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
@@ -94,7 +94,7 @@ export default function IncidentDetailsModal({ incident, onClose, onDelete, curr
                             <span className="font-mono text-xs">{incident.lat.toFixed(6)}, {incident.lng.toFixed(6)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
-                            <Calendar size={16} className="text-primary" />
+                            <Calendar size={16} className="text-slate-300" />
                             <span>{new Date(incident.timestamp).toLocaleDateString()}</span>
                         </div>
                     </div>

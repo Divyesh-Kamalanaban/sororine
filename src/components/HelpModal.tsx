@@ -144,7 +144,7 @@ export default function HelpModal({
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <h3 className="font-semibold text-white flex items-center gap-2">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                            <div className="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center">
                                                 <User className="w-5 h-5 text-white" />
                                             </div>
                                             Helper #{offer.helperId.slice(0, 8)}
