@@ -70,7 +70,6 @@ export interface Incident {
   location: string | null;
   imageUrl: string | null;
   timestamp: Date;
-  createdAt: Date;
   userId: string | null;
   user?: any;
 }
