@@ -177,6 +177,20 @@ export default function Dashboard() {
         if (myOffersRes.ok) {
           const data = await myOffersRes.json();
           setPendingOffers(data.offers || []);
+
+          // G. Check if any of MY offers (as a helper) were accepted by requesters
+          const myAcceptedOffers = data.offers.filter((o: any) => o.status === 'ACCEPTED');
+          
+          if (myAcceptedOffers.length > 0 && !activeChatPartner) {
+            const requester = myAcceptedOffers[0].requester;
+            setAcceptedHelperId(myAcceptedOffers[0].requesterId);
+            setActiveChatPartner({
+              id: myAcceptedOffers[0].requesterId,
+              name: `Requester #${myAcceptedOffers[0].requesterId.slice(0, 8)}`
+            });
+            setIsOfferHelpModalOpen(false); // Close modal when chat opens
+            console.log('[Dashboard] Helper: Opening chat for accepted offer', myAcceptedOffers[0]);
+          }
         }
       }
 
@@ -321,8 +335,8 @@ export default function Dashboard() {
               </div>
 
               {currentRisk && (
-                <div className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 no-scrollbar">
-                  <div className="min-w-[200px] md:min-w-0">
+                <div className="flex flex-col md:flex-col gap-3 w-full md:w-auto">
+                  <div className="w-full md:min-w-0">
                     <KPICard
                       title="Risk Level"
                       value={currentRisk.level}
@@ -336,7 +350,7 @@ export default function Dashboard() {
                       icon={ShieldAlert}
                     />
                   </div>
-                  <div className="min-w-[200px] md:min-w-0">
+                  <div className="w-full md:min-w-0">
                     <KPICard
                       title="Active Alerts"
                       value={currentRisk.factors.recentIncidents.toString()}
