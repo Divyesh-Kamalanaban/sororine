@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Incident } from '@prisma/client';
-import { Plus, Minus, Navigation } from 'lucide-react';
+import { Plus, Minus, Navigation, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 interface MapProps {
@@ -13,6 +13,7 @@ interface MapProps {
     nearbyUsers?: { id: string, lat: number, lng: number, isHelpRequested?: boolean }[];
     onMapClick?: (lat: number, lng: number) => void;
     onOfferHelp?: (targetUserId: string) => void;
+    onIncidentClick?: (incident: Incident) => void;
 }
 
 function MapEvents({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) {
@@ -32,41 +33,55 @@ function MapEvents({ onMapClick }: { onMapClick?: (lat: number, lng: number) => 
 // Custom icons
 const createIcon = (color: string) => L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #050509; box-shadow: 0 0 10px ${color}, 0 0 20px ${color};"></div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
+    html: `
+      <div class="relative flex items-center justify-center">
+        <div class="absolute w-8 h-8 rounded-full bg-${color === '#ef4444' ? 'red' : 'orange'}-500/20 animate-pulse"></div>
+        <div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px ${color}80; z-index: 10;"></div>
+      </div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
 });
 
 const userIcon = L.divIcon({
     className: 'user-marker',
     html: `
-      <div style="position: relative; width: 22px; height: 22px;">
-        <div style="background: #94a3b8; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 8px rgba(148, 163, 184, 0.6);"></div>
-        <div style="position:absolute; top:6px; left:6px; width:10px; height:10px; background: #050509; border-radius:50%;"></div>
+      <div class="relative flex items-center justify-center">
+        <div style="width: 20px; height: 20px; background: #3b82f6; border: 2px solid white; border-radius: 50%; display: flex; items-center; justify-content: center;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
       </div>
     `,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11]
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
 });
 
 const nearbyIcon = L.divIcon({
     className: 'nearby-marker',
     html: `
-      <div style="background: #475569; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 4px rgba(71, 85, 105, 0.6);"></div>
+      <div style="width: 16px; height: 16px; background: #64748b; border: 2px solid white; border-radius: 50%; display: flex; items-center; justify-content: center;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>
     `,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
 });
 
 const helpRequestedIcon = L.divIcon({
     className: 'help-marker',
-    html: `<div style="background-color: #ef4444; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.5); animation: pulse 1s infinite;"></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10]
+    html: `<div style="background-color: #ef4444; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
 });
 
 
-export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], onMapClick, onOfferHelp }: MapProps) {
+export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], onMapClick, onOfferHelp, onIncidentClick }: MapProps) {
     const [position, setPosition] = useState<[number, number]>([28.6139, 77.2090]);
     const [map, setMap] = useState<L.Map | null>(null);
 
@@ -102,14 +117,15 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
 
         useEffect(() => {
             if (location && tracking) {
+                // Stabilize movement: increase threshold for updates (approx 100-150m for more stability)
                 const hasMovedSignificantly = !prevLoc.current ||
-                    Math.abs(location.lat - prevLoc.current.lat) > 0.0002 ||
-                    Math.abs(location.lng - prevLoc.current.lng) > 0.0002;
+                    Math.abs(location.lat - prevLoc.current.lat) > 0.001 ||
+                    Math.abs(location.lng - prevLoc.current.lng) > 0.001;
 
                 if (hasMovedSignificantly) {
                     map.flyTo([location.lat, location.lng], ZOOM_LEVEL, {
                         animate: true,
-                        duration: 1.5
+                        duration: 2.0 // Softer transition
                     });
                     prevLoc.current = location;
                 }
@@ -153,11 +169,15 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
                 {/* Current User */}
                 {userLocation && (
                     <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-                        <Popup className="!bg-[#0A0A10] !border !border-white/20 !rounded-lg !p-3 !text-sm !text-slate-300 !shadow-lg">
-                            <div className="font-medium">You are here</div>
-                            <div className="text-xs text-gray-400">Lat: {userLocation.lat.toFixed(4)}, Lng: {userLocation.lng.toFixed(4)}</div>
+                        <Popup>
+                            <div className="p-1">
+                                <div className="font-bold text-primary tracking-tight text-lg">Your Location</div>
+                                <div className="text-[10px] text-white/40 font-mono mt-1">
+                                    {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                                </div>
+                            </div>
                         </Popup>
-                        <Circle center={[userLocation.lat, userLocation.lng]} radius={100} pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1, weight: 1 }} />
+                        <Circle center={[userLocation.lat, userLocation.lng]} radius={100} pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.05, weight: 1, dashArray: '5, 10' }} />
                     </Marker>
                 )}
 
@@ -169,22 +189,24 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
                         icon={u.isHelpRequested ? helpRequestedIcon : nearbyIcon}
                         zIndexOffset={u.isHelpRequested ? 1000 : 0}
                     >
-                        <Popup className="!bg-[#0A0A10] !border !border-white/20 !rounded-lg !p-3 !text-sm !text-slate-300 !shadow-lg">
+                        <Popup>
                             {u.isHelpRequested ? (
-                                <div className="text-center">
-                                    <div className="font-bold text-red-500 mb-2">Help requested</div>
+                                <div className="text-center p-2">
+                                    <div className="font-bold text-red-500 mb-3 text-lg flex items-center gap-2 justify-center">
+                                        <AlertTriangle size={18} /> Needs Help
+                                    </div>
                                     {onOfferHelp && (
                                         <button
                                             onClick={() => onOfferHelp(u.id)}
-                                            className="px-3 py-1 bg-slate-700 text-white text-xs font-bold rounded-full hover:bg-slate-600 shadow-sm"
+                                            className="w-full px-4 py-3 bg-white text-black text-xs font-bold rounded-xl hover:bg-accent transition-all shadow-lg active:scale-95"
                                         >
-                                            Offer Assistance
+                                            Offer Help
                                         </button>
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-center">
-                                    <div className="font-medium">Nearby user</div>
+                                <div className="text-center p-1">
+                                    <div className="font-bold text-white/70 tracking-wide text-xs uppercase">Nearby User</div>
                                 </div>
                             )}
                         </Popup>
@@ -196,13 +218,23 @@ export default function SafetyMap({ incidents, userLocation, nearbyUsers = [], o
                     <Marker
                         key={incident.id}
                         position={[incident.lat, incident.lng]}
+                        icon={createIcon(incident.category === 'DANGER' ? '#ef4444' : '#f59e0b')}
+                        eventHandlers={{
+                            click: () => onIncidentClick?.(incident)
+                        }}
                     >
                         <Popup>
-                            <strong>{incident.category}</strong><br />
-                            {incident.description}<br />
-                            <span className="text-xs text-neutral-500">
-                                {new Date(incident.timestamp).toLocaleString()}
-                            </span>
+                            <div className="p-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                                    <strong className="text-white text-lg tracking-tight font-bold">{incident.category}</strong>
+                                </div>
+                                <p className="text-white/60 text-xs leading-relaxed line-clamp-2 mb-3">{incident.description}</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-white/5 font-mono text-[9px] text-white/30 uppercase tracking-widest">
+                                    <span>Incident Reported</span>
+                                    <span>{new Date(incident.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                            </div>
                         </Popup>
                     </Marker>
                 ))}

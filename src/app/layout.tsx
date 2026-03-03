@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sororine",
   description: "Women Safety & Incident Management Platform",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -24,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased min-h-screen bg-[#050507]">
+        {/* Persistent Global Background Gradient */}
+        <div className="fixed inset-0 bg-linear-to-r from-[#141414] to-[#023264] pointer-events-none z-[-100]" />
+
         {children}
       </body>
     </html>

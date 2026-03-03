@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldAlert, LogIn, Lock, Mail, ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function LoginContent() {
     const router = useRouter();
@@ -50,51 +51,47 @@ export default function LoginContent() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050509] flex items-center justify-center p-4">
-            {/* Background Effects */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]" />
-            </div>
-
+        <div className="min-h-screen bg-next-gen flex items-center justify-center p-4">
             <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 mb-6 shadow-2xl shadow-primary/20">
-                        <ShieldAlert size={32} className="text-primary" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
-                    <p className="text-gray-400">Sign in to report and view incidents based on your location.</p>
+                <div className="text-center mb-10">
+                    <Link href="/" className="inline-block mb-10 hover:opacity-80 transition-opacity">
+                        <span className="font-bold text-4xl tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-accent to-primary lowercase pr-2">
+                            sororine.
+                        </span>
+                    </Link>
+                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tighter">Welcome Back</h1>
+                    <p className="text-white/60 text-base md:text-lg font-light">Sign in to the global safety network.</p>
                 </div>
 
-                <div className="glass-card p-8 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl bg-black/40">
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="glass-card p-8 md:p-10 rounded-3xl border border-white/10 shadow-2xl">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
                                 {error}
                             </div>
                         )}
 
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                             <div className="relative group">
-                                <Mail className="absolute left-3 top-3.5 text-gray-500 group-focus-within:text-primary transition-colors" size={20} />
+                                <Mail className={cn("absolute left-4 top-4 w-5 h-5 text-white/40 transition-colors duration-300", "group-focus-within:text-primary")} />
                                 <input
                                     type="email"
                                     placeholder="Email Address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-light"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-light"
                                     required
                                 />
                             </div>
 
                             <div className="relative group">
-                                <Lock className="absolute left-3 top-3.5 text-gray-500 group-focus-within:text-primary transition-colors" size={20} />
+                                <Lock className={cn("absolute left-4 top-4 w-5 h-5 text-white/40 transition-colors duration-300", "group-focus-within:text-primary")} />
                                 <input
                                     type="password"
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-light"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-light"
                                     required
                                 />
                             </div>
@@ -103,10 +100,10 @@ export default function LoginContent() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-primary/25 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                            className="w-full py-4 bg-primary text-[#050509] rounded-2xl font-bold uppercase tracking-widest text-xs transition-all hover:bg-accent hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100 shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group"
                         >
                             {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                             ) : (
                                 <>
                                     Sign In <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -115,17 +112,17 @@ export default function LoginContent() {
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-gray-400 text-sm">
+                    <div className="mt-8 text-center">
+                        <p className="text-white/40 text-sm font-light tracking-wide">
                             Don't have an account?{' '}
-                            <Link href="/register" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                            <Link href="/register" className="text-primary hover:text-primary/80 transition-colors font-bold">
                                 Create Account
                             </Link>
                         </p>
                     </div>
                 </div>
-                <div className="mt-8 text-center">
-                    <Link href="/" className="text-gray-500 hover:text-white text-sm transition-colors flex items-center justify-center gap-2">
+                <div className="mt-10 text-center">
+                    <Link href="/" className="text-white/30 hover:text-white text-sm transition-colors flex items-center justify-center gap-2 uppercase tracking-[0.2em] font-medium">
                         ← Back to Home
                     </Link>
                 </div>

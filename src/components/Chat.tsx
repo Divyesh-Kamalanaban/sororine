@@ -99,7 +99,7 @@ export default function Chat({ myId, partnerId, partnerName = "Helper", onClose 
     };
 
     return (
-        <div className="fixed bottom-0 right-0 md:bottom-4 md:right-4 w-full md:w-96 h-screen md:h-[600px] md:rounded-2xl flex flex-col z-[1000] animate-in slide-in-from-bottom fade-in duration-300 md:shadow-2xl md:border md:border-white/10 bg-[#050509]">
+        <div className="fixed bottom-0 right-0 md:bottom-4 md:right-4 w-full md:w-96 max-h-[80vh] md:h-[600px] md:rounded-2xl flex flex-col z-[1000] animate-in slide-in-from-bottom fade-in duration-300 md:shadow-2xl md:border md:border-white/10 bg-[#050509] pb-[env(safe-area-inset-bottom)]">
             {/* Header - Modern Gradient */}
             <div className="px-4 md:px-6 py-4 md:py-5 bg-gradient-to-r from-[#2E2BAC] via-[#3D3ABD] to-[#4a47c9] rounded-none md:rounded-t-2xl flex justify-between items-center shadow-lg relative overflow-hidden">
                 {/* Animated Background Blur */}

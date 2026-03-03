@@ -14,7 +14,7 @@ interface KPICardProps {
 
 export default function KPICard({ title, value, change, changeType = "neutral", icon: Icon, color = "text-slate-300" }: KPICardProps) {
     return (
-        <div className="glass-card p-4 md:p-5 rounded-2xl relative overflow-hidden group hover:bg-white/10 transition-colors w-full">
+        <div className="glass-card p-4 md:p-5 rounded-2xl relative overflow-hidden group hover:bg-white/10 transition-colors w-full max-w-full">
             <div className="flex justify-between items-start mb-3 md:mb-4">
                 <div className={cn("p-2 rounded-lg bg-white/5", color)}>
                     <Icon size={20} className="md:w-6 md:h-6" />

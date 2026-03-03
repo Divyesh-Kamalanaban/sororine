@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { User, Phone, LogOut, Loader2, RefreshCw, MapPin } from 'lucide-react';
+import { User, Phone, LogOut, Loader2, RefreshCw, MapPin, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { cn } from "@/lib/utils";
@@ -149,122 +149,128 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#050509] text-white">
-            <div className="fixed top-0 left-0 h-full z-50">
-                <Sidebar />
-            </div>
+        <div className="flex min-h-screen bg-transparent text-white">
+            <Sidebar />
 
-            <main className="flex-1 md:pl-64 transition-all duration-300 w-full flex items-center justify-center p-6 relative">
-                {/* Mobile Header Spacer */}
-                <div className="md:hidden absolute top-4 left-16 right-4 flex justify-center pointer-events-none">
-                    <span className="font-bold text-xl tracking-wider text-white opacity-0">SORORINE</span>
-                </div>
-
-                <div className="text-center space-y-6 max-w-2xl w-full mt-10 md:mt-0">
-                    <div className="animate-in slide-in-from-top-4 duration-500">
-                        <h1 className="text-3xl font-bold text-primary mb-2">Settings</h1>
-                        <p className="text-gray-400">System Configuration & Profile</p>
+            <main className="flex-1 w-full p-4 md:p-8 pt-20 md:pt-10 overflow-x-hidden">
+                <div className="max-w-4xl mx-auto space-y-12">
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">Account Settings</h1>
+                        <p className="text-white/50 text-base md:text-lg">Manage your digital identity and situational safety parameters.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Risk Engine Context */}
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-left h-full flex flex-col animate-in slide-in-from-left-4 duration-500 delay-100">
-                            <div className="flex justify-between items-start mb-4">
-                                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                                    Risk Engine
-                                </h2>
-                                <button
-                                    onClick={handleRefresh}
-                                    disabled={riskLoading}
-                                    className="p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
-                                    title="Refresh Location & Risk"
-                                >
-                                    <RefreshCw size={18} className={cn("text-primary", riskLoading && "animate-spin")} />
-                                </button>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {/* Profile Section */}
+                        <div className="glass-card p-8 space-y-8 animate-in fade-in slide-in-from-left-6 duration-700 delay-100">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-blue-500/10 p-3 rounded-2xl border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                                    <User size={24} className="text-blue-400" />
+                                </div>
+                                <h2 className="text-2xl font-black tracking-tight">Personal Identity</h2>
                             </div>
-
-                            <div className="space-y-4 flex-1">
-                                <div className="flex justify-between items-center pb-3 border-b border-white/10">
-                                    <span className="text-gray-400 flex items-center gap-2">
-                                        <MapPin size={14} /> Active Region
-                                    </span>
-                                    <span className="font-mono text-primary font-medium">
-                                        {riskLoading ? <Loader2 size={14} className="animate-spin" /> : riskContext.region}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center pb-3 border-b border-white/10">
-                                    <span className="text-gray-400">Current Risk Score</span>
-                                    <span className={cn(
-                                        "font-mono font-bold",
-                                        riskLoading ? "text-gray-500" :
-                                            riskContext.level === 'CRITICAL' ? 'text-red-500' :
-                                                riskContext.level === 'HIGH' ? 'text-orange-500' :
-                                                    'text-emerald-500'
-                                    )}>
-                                        {riskLoading ? "..." : `${riskContext.score.toFixed(2)} (${riskContext.level})`}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400">Dataset</span>
-                                    <span className="font-mono text-gray-500 text-xs text-right">v2024.1 (NCRB)</span>
-                                </div>
-
-                                <div className="mt-4 pt-2 text-xs text-center text-gray-500 border-t border-white/5">
-                                    {locationStatus}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* User Profile */}
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-left h-full relative overflow-hidden flex flex-col animate-in slide-in-from-right-4 duration-500 delay-200">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                <User size={80} />
-                            </div>
-                            <h2 className="text-xl font-semibold mb-4 text-white flex items-center gap-2">
-                                <User size={18} className="text-primary" /> Profile
-                            </h2>
 
                             {loading ? (
-                                <div className="flex-1 flex items-center justify-center text-gray-500">
-                                    <Loader2 className="animate-spin mr-2" /> Loading...
+                                <div className="flex items-center justify-center py-16">
+                                    <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
                                 </div>
                             ) : user ? (
-                                <div className="space-y-4 flex-1">
-                                    <div className="space-y-1 pb-3 border-b border-white/10">
-                                        <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Name</div>
-                                        <div className="font-medium text-white text-lg">{user.name}</div>
-                                    </div>
-                                    <div className="space-y-1 pb-3 border-b border-white/10">
-                                        <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Email</div>
-                                        <div className="font-mono text-gray-300 text-sm">{user.email}</div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider flex items-center gap-1">
-                                            <Phone size={10} /> Emergency Contact
+                                <div className="space-y-6">
+                                    <div className="group transition-all">
+                                        <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black mb-2 px-1">Full Legal Name</p>
+                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-white/20 transition-all">
+                                            <p className="text-xl font-bold tracking-tight text-white/90">{user.name}</p>
                                         </div>
-                                        <div className="font-medium text-red-400">{user.emergencyContactName || "Not set"}</div>
-                                        <div className="text-sm text-gray-400 font-mono">{user.emergencyContactNumber || "--"}</div>
+                                    </div>
+
+                                    <div className="group transition-all">
+                                        <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black mb-2 px-1">Verified Email</p>
+                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group-hover:border-white/20 transition-all">
+                                            <p className="text-lg font-mono text-white/70">{user.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="group transition-all">
+                                        <p className="text-xs text-red-500/60 uppercase tracking-[0.2em] font-black mb-2 px-1 flex items-center gap-2">
+                                            <Phone size={14} /> Emergency Contact
+                                        </p>
+                                        <div className="p-5 bg-red-500/5 rounded-2xl border border-red-500/10 group-hover:border-red-500/30 transition-all">
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-xl font-black text-red-400 tracking-tight">{user.emergencyContactName || "Guardian Not Configured"}</p>
+                                                <p className="text-sm text-red-500/50 font-mono font-bold">{user.emergencyContactNumber || "+00 0000-0000"}</p>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <button
                                         onClick={handleLogout}
-                                        className="w-full mt-auto py-2.5 bg-white/5 hover:bg-red-500/20 text-red-500 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] text-sm font-medium border border-transparent hover:border-red-500/30"
+                                        className="w-full py-4 mt-8 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-2xl flex items-center justify-center gap-3 transition-all border border-red-600/20 text-sm font-black uppercase tracking-widest shadow-lg shadow-red-950/20 active:scale-[0.98]"
                                     >
-                                        <LogOut size={16} /> Sign Out
+                                        <LogOut size={18} />
+                                        Authorize Logout
                                     </button>
                                 </div>
-                            ) : (
-                                <div className="text-center py-8 flex-1 flex flex-col justify-center">
-                                    <p className="text-gray-400 mb-4 text-sm">You are not logged in.</p>
-                                    <button
-                                        onClick={() => router.push('/login')}
-                                        className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-                                    >
-                                        Sign In
-                                    </button>
+                            ) : null}
+                        </div>
+
+                        {/* Security/Risk Section */}
+                        <div className="glass-card p-8 space-y-8 animate-in fade-in slide-in-from-right-6 duration-700 delay-200">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-green-500/10 p-3 rounded-2xl border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                                        <ShieldCheck size={24} className="text-green-400" />
+                                    </div>
+                                    <h2 className="text-2xl font-black tracking-tight">Safety Context</h2>
                                 </div>
-                            )}
+                                <button
+                                    onClick={handleRefresh}
+                                    disabled={riskLoading}
+                                    className="p-3 hover:bg-white/10 rounded-2xl transition-all text-white/60 hover:text-white disabled:opacity-30 border border-transparent hover:border-white/10 active:scale-90"
+                                    title="Refresh Risk Analysis"
+                                >
+                                    <RefreshCw size={22} className={cn(riskLoading && "animate-spin")} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="p-6 bg-white/5 rounded-3xl border border-white/5 flex flex-col items-center text-center gap-2">
+                                    <div className="bg-blue-500/10 p-3 rounded-full mb-2">
+                                        <MapPin size={24} className="text-blue-500" />
+                                    </div>
+                                    <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black">Current Sector</p>
+                                    <p className="text-3xl font-black tracking-tighter text-white">
+                                        {riskLoading ? "Scanning..." : riskContext.region}
+                                    </p>
+                                </div>
+
+                                <div className="p-6 bg-white/5 rounded-3xl border border-white/5 flex flex-col items-center text-center gap-4">
+                                    <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black">Safety Quotient</p>
+                                    <div className={`px-8 py-4 rounded-2xl text-2xl font-black tracking-tighter shadow-2xl ${riskContext.level === 'CRITICAL' ? 'bg-red-500/20 text-red-500 shadow-red-500/10 border border-red-500/20' :
+                                        riskContext.level === 'HIGH' ? 'bg-orange-500/20 text-orange-500 shadow-orange-500/10 border border-orange-500/20' :
+                                            'bg-green-500/20 text-green-500 shadow-green-500/10 border border-green-500/20'
+                                        }`}>
+                                        {riskLoading ? "ANALYZING..." : riskContext.level}
+                                    </div>
+
+                                    <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                                        <div
+                                            className={cn(
+                                                "h-full transition-all duration-1000",
+                                                riskContext.level === 'CRITICAL' ? 'bg-red-500 w-[90%]' :
+                                                    riskContext.level === 'HIGH' ? 'bg-orange-500 w-[65%]' : 'bg-green-500 w-[20%]'
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-6 text-center">
+                                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10">
+                                        <div className={cn("w-2 h-2 rounded-full", riskLoading ? "bg-blue-500 animate-pulse" : "bg-green-500")} />
+                                        <p className="text-[10px] text-white/60 uppercase tracking-widest font-black">
+                                            {locationStatus || "System Operational"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

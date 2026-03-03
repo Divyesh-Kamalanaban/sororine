@@ -80,6 +80,17 @@ export async function DELETE(request: Request) {
             }, { status: 403 });
         }
 
+        // Check if report is within 24 hours of creation
+        const now = new Date();
+        const createdAt = new Date(incident.timestamp);
+        const hoursDifference = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+
+        if (hoursDifference > 24) {
+            return NextResponse.json({ 
+                error: 'Reports can only be deleted within 24 hours of creation' 
+            }, { status: 403 });
+        }
+
         await prisma.incident.delete({
             where: { id: parseInt(id) },
         });

@@ -8,197 +8,211 @@ interface EnhancedGlobeProps {
 
 export default function EnhancedGlobe({ scrollProgress = 0 }: EnhancedGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const globeRef = useRef<any>(null);
-  const rendererRef = useRef<any>(null);
+  const scrollProgressRef = useRef(scrollProgress);
+  const isInitializedRef = useRef(false);
+
+  // Sync scrollProgress prop to ref for use in animation loop
+  useEffect(() => {
+    scrollProgressRef.current = scrollProgress;
+  }, [scrollProgress]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isInitializedRef.current) return;
 
-    let scene: any;
-    let camera: any;
-    let renderer: any;
-    let globe: any;
-    let animationId: number;
+    let isMounted = true;
+    isInitializedRef.current = true;
+    let animationId: number | null = null;
+    let renderer: any = null;
+    let camera: any = null;
 
-    Promise.all([
-      import('three'),
-      import('three-globe'),
-    ]).then(([THREE, GlobeModule]: [typeof import('three'), any]) => {
-      const Globe = GlobeModule.default || GlobeModule;
+    const handleResize = () => {
+      if (!renderer || !camera) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
 
-      // Scene setup
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-      scene.fog = new THREE.Fog(0x000000, 0, 800);
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const isMobile = width < 640;
-
-      camera = new THREE.PerspectiveCamera(
-        isMobile ? 60 : 75,
-        width / height,
-        0.1,
-        1000
-      );
-      camera.position.set(0, 20, isMobile ? 240 : 200);
-
-      // Refined lighting - subtle and sophisticated
-      // higher ambient to lift the dark night texture
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-      scene.add(ambientLight);
-
-      // Key light - cool tone
-      const keyLight = new THREE.DirectionalLight(0xccddff, 0.8);
-      keyLight.position.set(120, 60, 100);
-      keyLight.castShadow = true;
-      scene.add(keyLight);
-
-      // camera-aligned fill light to illuminate front faces
-      const cameraLight = new THREE.DirectionalLight(0xffffff, 0.6);
-      camera.add(cameraLight); // light follows camera
-      scene.add(camera);
-
-      // Fill light - warm tone, very subtle
-      const fillLight = new THREE.DirectionalLight(0xffccaa, 0.15);
-      fillLight.position.set(-100, -40, 0);
-      scene.add(fillLight);
-
-      // Back light for rim definition
-      const backLight = new THREE.DirectionalLight(0xccddff, 0.25);
-      backLight.position.set(0, 100, -100);
-      scene.add(backLight);
-
-      renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true,
-        powerPreference: 'high-performance',
-        logarithmicDepthBuffer: true,
-      });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFShadowMap;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      containerRef.current?.appendChild(renderer.domElement);
-      rendererRef.current = renderer;
-
-      // Create globe
-      globe = new Globe({} as any);
-      const globeScale = isMobile ? 1.0 : 1.3;
-      globe.scale.set(globeScale, globeScale, globeScale);
-      globeRef.current = globe;
-
-      // Use Earth-Night texture with proper lighting
-      globe.globeImageUrl = '/Earth-Night.jpg';
-      globe.cloudsImageUrl = '/clouds.png';
-      globe.cloudsOpacity(0.3);
-
-      // Slightly more visible atmosphere for contrast
-      globe.atmosphereColor('#ffffff').atmosphereAltitude(0.25);
-      globe.showAtmosphere(true);
-
-      // Material refinement
+    const initGlobe = async () => {
       try {
-        const globeMat = globe.globeMaterial();
-        if (globeMat) {
-          globeMat.emissive = new THREE.Color(0x050505);
-          globeMat.emissiveIntensity = 0.3;
-          globeMat.specular = new THREE.Color(0x1a1a1a);
-          globeMat.shininess = 20;
-          globeMat.metalness = 0.15;
-          globeMat.roughness = 0.6;
+        const THREE = (await import('three')) as any;
+
+        if (!isMounted || !containerRef.current) return;
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        // Lower FOV (45) + Further back (500) reduces perspective distortion at the edges
+        camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          10000
+        );
+        camera.position.set(0, 0, 500);
+
+        // Lighting - High Intensity + Color Accents for Dark Mode
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
+        sunLight.position.set(200, 100, 100);
+        scene.add(sunLight);
+
+        const blueRimLight = new THREE.DirectionalLight(0x4488ff, 2.0);
+        blueRimLight.position.set(-200, -100, -100);
+        scene.add(blueRimLight);
+
+        // Renderer
+        renderer = new THREE.WebGLRenderer({
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance',
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        containerRef.current.appendChild(renderer.domElement);
+
+        const isMobile = window.innerWidth < 768;
+        const globeRadius = isMobile ? 100 : 160;
+        const globeBaseX = isMobile ? 0 : -50;
+
+        // Globe Assets - Responsive Scale
+        const geometry = new THREE.SphereGeometry(globeRadius, 64, 64);
+        const textureLoader = new THREE.TextureLoader();
+
+        let earthTexture;
+        try {
+          earthTexture = await new Promise<any>((resolve, reject) => {
+            textureLoader.load(
+              '/Earth-Night.jpg',
+              (texture: any) => {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                resolve(texture);
+              },
+              undefined,
+              reject
+            );
+          });
+        } catch (e) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1024;
+          canvas.height = 512;
+          const ctx = canvas.getContext('2d')!;
+          ctx.fillStyle = '#050a1a';
+          ctx.fillRect(0, 0, 1024, 512);
+          ctx.fillStyle = '#1e3a8a';
+          for (let i = 0; i < 50; i++) {
+            ctx.fillRect(Math.random() * 1024, Math.random() * 512, Math.random() * 100, Math.random() * 50);
+          }
+          earthTexture = new THREE.CanvasTexture(canvas);
+          earthTexture.colorSpace = THREE.SRGBColorSpace;
         }
 
-        const cloudsMat = globe.cloudsMaterial?.();
-        if (cloudsMat) {
-          cloudsMat.opacity = 0.2;
-          cloudsMat.emissive = new THREE.Color(0x0a0a0a);
-          cloudsMat.emissiveIntensity = 0.05;
-        }
-      } catch (e) {
-        // Ignore if APIs not available
+        const material = new THREE.MeshPhongMaterial({
+          map: earthTexture,
+          shininess: 30,
+          emissive: new THREE.Color(0x112244),
+          emissiveIntensity: 0.7,
+        });
+
+        const globe = new THREE.Mesh(geometry, material);
+        // Responsive initial position
+        globe.position.x = globeBaseX;
+        scene.add(globe);
+
+        // Atmosphere Glow - Responsive
+        const atmosphereGeo = new THREE.SphereGeometry(globeRadius, 64, 64);
+        const atmosphereMat = new THREE.MeshPhongMaterial({
+          color: 0x3b82f6,
+          transparent: true,
+          opacity: 0.1,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+        });
+        const atmosphere = new THREE.Mesh(atmosphereGeo, atmosphereMat);
+        atmosphere.scale.set(1.2, 1.2, 1.2);
+        atmosphere.position.x = globe.position.x;
+        scene.add(atmosphere);
+
+        // Outer Glow
+        const outerGlowMat = new THREE.MeshPhongMaterial({
+          color: 0x1d4ed8,
+          transparent: true,
+          opacity: 0.05,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+        });
+        const outerGlow = new THREE.Mesh(atmosphereGeo, outerGlowMat);
+        outerGlow.scale.set(1.4, 1.4, 1.4);
+        outerGlow.position.x = globe.position.x;
+        scene.add(outerGlow);
+
+        // Animation state for smoothing
+        let targetX = globe.position.x;
+        let currentX = globe.position.x;
+        let targetRotX = 0;
+        let currentRotX = 0;
+
+        const animate = () => {
+          if (!isMounted) return;
+          animationId = requestAnimationFrame(animate);
+
+          // Constant Rotation
+          globe.rotation.y += 0.0006;
+
+          const currentScroll = scrollProgressRef.current;
+          const isMobileNow = window.innerWidth < 768;
+          const dynamicBaseX = isMobileNow ? 0 : -50;
+          const dynamicRange = isMobileNow ? 50 : 200;
+
+          // Smoothed Position - Responsive range
+          targetX = dynamicBaseX + (currentScroll * dynamicRange);
+          currentX += (targetX - currentX) * 0.05;
+          globe.position.x = currentX;
+          atmosphere.position.x = currentX;
+          outerGlow.position.x = currentX;
+
+          // Smoothed Rotation mapping scroll to X-axis tilt
+          targetRotX = currentScroll * (isMobileNow ? 0.2 : 0.35);
+          currentRotX += (targetRotX - currentRotX) * 0.05;
+          globe.rotation.x = currentRotX;
+
+          renderer.render(scene, camera);
+        };
+        animate();
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+      } catch (err) {
+        console.error('❌ EnhancedGlobe Failed:', err);
       }
+    };
 
-      // Very minimal scatter points
-      const generatePoints = () => {
-        const points = Array.from({ length: 20 }, () => ({
-          lat: (Math.random() - 0.5) * 180,
-          lng: (Math.random() - 0.5) * 360,
-          size: Math.random() * 0.003 + 0.001,
-          color: '#4a7c8a',
-        }));
-        return points;
-      };
+    initGlobe();
 
-      const points = generatePoints();
-      globe
-        .pointsData(points)
-        .pointLat((d: any) => d.lat)
-        .pointLng((d: any) => d.lng)
-        .pointColor((d: any) => d.color)
-        .pointAltitude((d: any) => d.size)
-        .pointOpacity(0.3)
-        .pointRadius(0.3);
-
-      scene.add(globe);
-
-      // Animation loop with scroll responsiveness
-      const animate = () => {
-        animationId = requestAnimationFrame(animate);
-
-        // Gentle base rotation
-        // base slow auto-rotation
-        globe.rotation.y += 0.00005;
-
-        // Scroll-influenced rotation offset (not cumulative)
-        const scrollRotation = scrollProgress * Math.PI * 0.3;
-        globe.rotation.y = globe.rotation.y * 0.85 + scrollRotation * 0.15;
-
-        // Smooth tilt based on scroll (small range)
-        const targetTiltX = scrollProgress * 0.15 - 0.05;
-        globe.rotation.x += (targetTiltX - globe.rotation.x) * 0.05;
-
-        // Very subtle wobble
-        globe.rotation.z = Math.sin(Date.now() * 0.00003) * 0.01;
-
-        renderer.render(scene, camera);
-      };
-      animate();
-
-      // Handle resize
-      const handleResize = () => {
-        if (!containerRef.current) return;
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-
-        // Update globe scale on resize
-        const newScale = w < 640 ? 1.0 : 1.3;
-        globe.scale.set(newScale, newScale, newScale);
-      };
-
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        cancelAnimationFrame(animationId);
+    return () => {
+      isMounted = false;
+      isInitializedRef.current = false;
+      if (animationId !== null) cancelAnimationFrame(animationId);
+      if (renderer) {
         renderer.dispose();
         if (containerRef.current?.contains(renderer.domElement)) {
           containerRef.current.removeChild(renderer.domElement);
         }
-      };
-    }).catch(err => console.error('Failed to load Three.js:', err));
-  }, [scrollProgress]);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 pointer-events-none -z-10"
+      className="fixed inset-0 pointer-events-none z-[-50] w-full h-full"
     />
   );
 }

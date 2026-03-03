@@ -100,7 +100,7 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
                                     <p className="text-sm font-medium text-white">
                                         {result.display_name.split(',')[0]}
                                     </p>
-                                    <p className="text-xs text-gray-400 truncate w-64">
+                                    <p className="text-xs text-gray-400 truncate max-w-full">
                                         {result.display_name.split(',').slice(1).join(',')}
                                     </p>
                                 </div>
